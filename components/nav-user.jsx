@@ -43,6 +43,19 @@ export function NavUser({ user }) {
     router.push("/") 
   }
 
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2 p-2">
+        <div className="h-8 w-8 rounded-lg bg-gray-200 animate-pulse" />
+        <div className="space-y-1">
+          <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+          <div className="h-2 w-32 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
