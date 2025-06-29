@@ -20,6 +20,7 @@ import {
   Trophy,
   User2Icon,
 } from "lucide-react"
+import TopupComp from "./homepage/TopupComp"
 
 import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
@@ -33,6 +34,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "./ui/sidebar"
+import { useUser } from "@clerk/nextjs"
 
 const data = {
   logo: [
@@ -75,9 +77,9 @@ const data = {
       ],
     },
     {
-      title: "AI Analyst", 
+      title: "AI Analyst",
       url: "#",
-      icon: BrainCircuit, 
+      icon: BrainCircuit,
       items: [
         { title: "AI Suggestions", url: "#" },
         { title: "Trade Analysis", url: "#" },
@@ -117,6 +119,30 @@ const data = {
 
 export function AppSidebar({ ...props }) {
   const LogoIcon = data.logo[0].logo;
+  const { user } = useUser();
+  const [userBalance, setUserBalance] = React.useState(0);
+
+
+  const handleBalanceUpdate = (newBalance) => {
+    setUserBalance(newBalance);
+  };
+
+  // Fetch user's current balance
+  React.useEffect(() => {
+    const fetchUserBalance = async () => {
+      if (user?.id) {
+        try {
+          const response = await fetch(`/api/users/${user.id}`);
+          const userData = await response.json();
+          setUserBalance(userData.virtualBalance || 0);
+        } catch (error) {
+          console.error('Error fetching user balance:', error);
+        }
+      }
+    };
+
+    fetchUserBalance();
+  }, [user]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -128,6 +154,11 @@ export function AppSidebar({ ...props }) {
       <hr className="border-t border-sidebar-border mx-4" />
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <TopupComp
+          clerkId={user?.id}
+          currentBalance={userBalance}
+          onBalanceUpdate={handleBalanceUpdate}
+        />
       </SidebarContent>
       <SidebarFooter>
         <TeamSwitcher teams={data.teams} />
