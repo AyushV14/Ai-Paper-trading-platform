@@ -52,7 +52,7 @@ export const PageContent = () => {
           <div>
             <h3 className="font-semibold text-lg">Market Status</h3>
             <p className="text-blue-100 text-sm">
-              Data refreshes every 30 seconds • Powered by Angel Broking SmartAPI
+              Data refreshes every 30 seconds • Powered by Somaiya Group 21
             </p>
           </div>
           <div className="flex items-center gap-2">

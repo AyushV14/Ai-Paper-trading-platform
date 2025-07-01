@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, TrendingUp, TrendingDown, BarChart3, Activity } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import TradingPanel from '../../../components/homepage/TradingPanel';
 import StockChart from '../../../components/homepage/StockChart'
 import { Input } from '../../../components/ui/input';
 import MarketStatus from '../../../components/homepage/MarketStatus'
@@ -11,6 +13,9 @@ const StockDetailsPage = () => {
   const router = useRouter();
   const params = useParams();
   const symbol = params.symbol?.toUpperCase();
+  const { user } = useUser(); // Get user from Clerk
+  console.log(user?.id, "USERID HERE++++=");
+
 
   const [stockData, setStockData] = useState(null);
   const [chartData, setChartData] = useState(null);
@@ -18,6 +23,8 @@ const StockDetailsPage = () => {
   const [chartLoading, setChartLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTimeframe, setActiveTimeframe] = useState('1d');
+  const [userBalance, setUserBalance] = useState(0);
+
 
   const timeframes = [
     { label: '1D', value: '1d' },
@@ -27,12 +34,6 @@ const StockDetailsPage = () => {
     { label: '5Y', value: '5y' }
   ];
 
-  useEffect(() => {
-    if (symbol) {
-      fetchStockDetails();
-      fetchChartData(activeTimeframe);
-    }
-  }, [symbol]);
 
   const fetchStockDetails = async () => {
     try {
@@ -73,9 +74,42 @@ const StockDetailsPage = () => {
     }
   };
 
+  const fetchUserBalance = async () => {
+    if (user?.id) {
+      try {
+        const response = await fetch(`/api/user-balance/${user.id}`);
+        const data = await response.json();
+        console.log(data, "user-balance==========");
+
+        setUserBalance(data.virtualBalance || 0);
+      } catch (error) {
+        console.error('Error fetching user balance:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (symbol) {
+      fetchStockDetails();
+      fetchChartData(activeTimeframe);
+    }
+  }, [symbol]);
+
+  
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserBalance();
+    }
+  }, [user?.id]);
+
+
   const handleTimeframeChange = (timeframe) => {
     setActiveTimeframe(timeframe);
     fetchChartData(timeframe);
+  };
+
+  const handleBalanceUpdate = (newBalance) => {
+    setUserBalance(newBalance);
   };
 
   if (loading) {
@@ -135,7 +169,7 @@ const StockDetailsPage = () => {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft size={20} />
-            
+
           </button>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -208,8 +242,8 @@ const StockDetailsPage = () => {
                     key={tf.value}
                     onClick={() => handleTimeframeChange(tf.value)}
                     className={`px-3 py-1 text-sm rounded-md transition-colors ${activeTimeframe === tf.value
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                       }`}
                   >
                     {tf.label}
@@ -229,7 +263,7 @@ const StockDetailsPage = () => {
           </div>
 
           {/* Trading Panel */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          {/* <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Trade</h2>
 
             <div className="space-y-4">
@@ -263,28 +297,15 @@ const StockDetailsPage = () => {
                   SELL
                 </button>
               </div>
-
-              {/* <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">Market Status</h3>
-                <div className="text-sm text-blue-800">
-                  <div className="flex justify-between">
-                    <span>Market:</span>
-                    <span className="font-medium">Open</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Last Update:</span>
-                    <span className="font-medium">
-                      {new Date(stockData.tsInMillis).toLocaleTimeString('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div> */}
               <MarketStatus stockData={stockData} />
             </div>
-          </div>
+          </div> */}
+          <TradingPanel
+            stockData={stockData}
+            clerkId={user?.id}
+            userBalance={userBalance}
+            onBalanceUpdate={handleBalanceUpdate}
+          />
         </div>
 
         {/* Additional Stock Information */}
