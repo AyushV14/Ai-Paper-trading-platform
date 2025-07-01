@@ -1,30 +1,41 @@
-import React from 'react';
+"use client"
+import React, { useState } from 'react';
 import { CardBalance } from "./CardBalance";
 import { StockCard } from "../homepage/StockCard";
 
 export const PageContent = () => {
-  
+
+  const [lastUpdateTime, setLastUpdateTime] = useState("");
   const stockSymbols = [
-    "NSE:RELIANCE-EQ",    
-    "NSE:TCS-EQ",         
-    "NSE:INFY-EQ",        
-    "NSE:HDFCBANK-EQ"     
+    "RELIANCE",    // Reliance Industries
+    "TCS",         // Tata Consultancy Services
+    "INFY",        // Infosys
+    "HDFCBANK"     // HDFC Bank
   ];
+
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       {/* Header */}
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
         <h1 className="text-3xl font-bold text-gray-900">Market Dashboard</h1>
         <p className="text-gray-600 mt-1">Live stock prices powered by SmartAPI</p>
+        </div>
+        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className='text-sm'>Live {lastUpdateTime}</span>
+        </div>
+      </div>
       </div>
 
       {/* Stock Cards Grid Wrapper with Horizontal Scroll */}
       <div className="w-full overflow-x-auto">
-        <div className="flex gap-4 min-w-[900px] pb-2">
+        <div className="flex gap-4 min-w-[900px] pb-2 overflow-x-auto">
           {stockSymbols.map((symbol) => (
             <div key={symbol} className="min-w-[200px] flex-shrink-0">
-              <StockCard symbol={symbol} />
+              <StockCard symbol={symbol} updateTimeCallback={setLastUpdateTime} />
             </div>
           ))}
 
@@ -41,7 +52,7 @@ export const PageContent = () => {
           <div>
             <h3 className="font-semibold text-lg">Market Status</h3>
             <p className="text-blue-100 text-sm">
-              Data refreshes every 30 seconds • Powered by Angel Broking SmartAPI
+              Data refreshes every 30 seconds • Powered by Somaiya Group 21
             </p>
           </div>
           <div className="flex items-center gap-2">
