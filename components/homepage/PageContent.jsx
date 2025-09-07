@@ -4,7 +4,6 @@ import { CardBalance } from "./CardBalance";
 import { StockCard } from "../homepage/StockCard";
 
 export const PageContent = () => {
-
   const [lastUpdateTime, setLastUpdateTime] = useState("");
   const stockSymbols = [
     "RELIANCE",    // Reliance Industries
@@ -13,21 +12,20 @@ export const PageContent = () => {
     "HDFCBANK"     // HDFC Bank
   ];
 
-
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+    <div className="flex flex-1 flex-col w-full gap-4">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-        <h1 className="text-3xl font-bold text-gray-900">Market Dashboard</h1>
-        <p className="text-gray-600 mt-1">Live stock prices powered by SmartAPI</p>
+          <h1 className="text-3xl font-bold text-gray-900">Market Dashboard</h1>
+          <p className="text-gray-600 mt-1">Live stock prices powered by SmartAPI</p>
         </div>
         <div className="flex items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className='text-sm'>Live {lastUpdateTime}</span>
+          <div className="flex items-center gap-1">
+            {/* <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> */}
+            {/* <span className='text-sm'>Live {lastUpdateTime}</span> */}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* Stock Cards Grid Wrapper with Horizontal Scroll */}

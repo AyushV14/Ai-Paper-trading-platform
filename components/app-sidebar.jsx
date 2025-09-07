@@ -36,7 +36,13 @@ import {
 } from "./ui/sidebar"
 import { useUser } from "@clerk/nextjs"
 
-const data = {
+
+
+
+export function AppSidebar({ ...props }) {
+  const { user } = useUser();
+
+  const data = {
   logo: [
     {
       name: "BharatTades",
@@ -59,7 +65,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: LayoutDashboard,
       isActive: true,
       items: [
@@ -69,7 +75,7 @@ const data = {
     },
     {
       title: "Portfolio",
-      url: "#",
+      url: `/dashboard/portfolio/${user?.id}`,
       icon: Briefcase,
       items: [
         { title: "My Holdings", url: "#" },
@@ -115,13 +121,14 @@ const data = {
       ],
     },
   ],
-};
-
-export function AppSidebar({ ...props }) {
+  };
   const LogoIcon = data.logo[0].logo;
-  const { user } = useUser();
+
+
+  
   const [userBalance, setUserBalance] = React.useState(0);
 
+  
 
   const handleBalanceUpdate = (newBalance) => {
     setUserBalance(newBalance);
@@ -135,6 +142,7 @@ export function AppSidebar({ ...props }) {
           const response = await fetch(`/api/users/${user.id}`);
           const userData = await response.json();
           setUserBalance(userData.virtualBalance || 0);
+          
         } catch (error) {
           console.error('Error fetching user balance:', error);
         }

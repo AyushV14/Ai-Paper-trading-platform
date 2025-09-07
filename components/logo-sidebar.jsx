@@ -36,7 +36,7 @@ export function LogoSidebar() {
 
           {!isCollapsed && (
             <div className="flex flex-col items-start">
-              <span className="text-lg font-semibold">BharatTrades</span>
+              <span className="text-lg font-semibold">BharatlEarns</span>
               <span className="text-xs text-muted-foreground">
                 Analyse, Optimise, Grow
               </span>

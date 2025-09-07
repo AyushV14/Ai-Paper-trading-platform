@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "BharatTrades",
-  description: "Smarter Trading with BharatTrades",
+  title: "BharatlEarns",
+  description: "Smarter Trading with BharatlEarns",
 };
 
 export default function RootLayout({ children }) {

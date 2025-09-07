@@ -72,7 +72,7 @@ export function CallToAction() {
               </div>
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Contact: info@BharatTrades.ai | +91-XXXX-XXXXXX
+                  Contact: info@BharatlEarns.ai | +91-XXXX-XXXXXX
                 </p>
               </div>
             </CardContent>

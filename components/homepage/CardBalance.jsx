@@ -12,6 +12,8 @@ export const CardBalance = () => {
         try {
           const res = await fetch(`/api/users/${user.id}`);
           const data = await res.json();
+          console.log(data,"===========");
+          
           setBalance(data.virtualBalance);
         } catch (err) {
           console.error("Failed to fetch balance:", err);

@@ -18,7 +18,7 @@ export function Header() {
 
           <div>
             <h1 className="text-xl font-semibold text-black dark:text-white">
-              BharatTrades
+              BharatlEarns
             </h1>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Analyse, Optimise, Grow

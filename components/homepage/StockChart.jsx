@@ -161,7 +161,7 @@ const StockChart = ({ chartData, timeframe, symbol, isLoading, stockData }) => {
   const maxPrice = Math.max(...prices);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {/* Current Price and Stats */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

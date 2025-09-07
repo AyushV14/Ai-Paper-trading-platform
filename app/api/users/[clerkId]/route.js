@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
     if (!user) {
       return new Response("User not found", { status: 404 });
     }
-    return Response.json({ virtualBalance: user.virtualBalance });
+    return Response.json(user);
   } catch (err) {
     console.error("Error fetching user:", err);
     return new Response("Internal server error", { status: 500 });

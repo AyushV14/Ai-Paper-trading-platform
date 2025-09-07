@@ -33,7 +33,7 @@ export const Header = () => {
 
   if (!isLoaded) {
     return (
-      <header className="flex h-16 shrink-0 items-center justify-between px-4">
+      <div className="h-16 w-full flex items-center justify-between px-4">
         {/* Left: Loading breadcrumbs */}
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-md bg-gray-200 animate-pulse" />
@@ -53,7 +53,7 @@ export const Header = () => {
             <div className="h-2 w-32 bg-gray-200 rounded animate-pulse" />
           </div>
         </div>
-      </header>
+      </div>
     );
   }
 
@@ -64,10 +64,10 @@ export const Header = () => {
   };
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+    <div className="h-16 w-full flex items-center justify-between px-4">
       {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ml-1 block md:hidden" />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
@@ -86,6 +86,6 @@ export const Header = () => {
       <div>
         <NavUser user={currentUser} />
       </div>
-    </header>
+    </div>
   );
 };

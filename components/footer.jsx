@@ -15,7 +15,7 @@ export function Footer() {
             {/* Branding text */}
             <div>
               <h1 className="text-xl font-semibold text-white dark:text-white">
-                BharatTrades
+                BharatlEarns
               </h1>
               <p className="text-xs text-gray-400 dark:text-gray-400">
                 Analyse, Optimise, Grow
@@ -27,7 +27,7 @@ export function Footer() {
               Empowering India's next generation of intelligent investors
             </p>
             <p className="text-xs text-gray-500">
-              © 2025 BharatTrades. Building the future of financial education in
+              © 2025 BharatlEarns. Building the future of financial education in
               India.
             </p>
           </div>
