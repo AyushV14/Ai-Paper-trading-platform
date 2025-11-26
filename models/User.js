@@ -20,6 +20,12 @@ const TradeSchema = new mongoose.Schema({
   ts: { type: Date, default: Date.now },
 });
 
+const ReportSchema = new mongoose.Schema({
+  generatedAt: { type: Date, default: Date.now },
+  rawData: { type: Object }, 
+  expandedData: { type: Object }, 
+});
+
 const UserSchema = new mongoose.Schema({
   clerkId: String,
   email: String,
@@ -31,6 +37,8 @@ const UserSchema = new mongoose.Schema({
   },
   holdings: [HoldingSchema],
   trades: [TradeSchema],
+  reports: [ReportSchema],
+  reportCount: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -38,4 +46,4 @@ const UserSchema = new mongoose.Schema({
   updatedAt: Date,
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+export default mongoose.models.User || mongoose.model("User", UserSchema);

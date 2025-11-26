@@ -84,7 +84,7 @@ export function AppSidebar({ ...props }) {
     },
     {
       title: "AI Analyst",
-      url: "#",
+      url: "/dashboard/analyze",
       icon: BrainCircuit,
       items: [
         { title: "AI Suggestions", url: "#" },
@@ -94,7 +94,7 @@ export function AppSidebar({ ...props }) {
     },
     {
       title: "News",
-      url: "#",
+      url: "/dashboard/news",
       icon: Newspaper,
       items: [
         { title: "Market News", url: "#" },
@@ -103,7 +103,7 @@ export function AppSidebar({ ...props }) {
     },
     {
       title: "Leaderboard",
-      url: "#",
+      url: "/dashboard/leaderboard",
       icon: Trophy,
       items: [
         { title: "Top Traders", url: "#" },
@@ -112,7 +112,7 @@ export function AppSidebar({ ...props }) {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: Settings2,
       items: [
         { title: "Profile", url: "#" },

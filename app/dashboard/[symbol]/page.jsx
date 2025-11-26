@@ -1,19 +1,20 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, TrendingUp, TrendingDown, BarChart3, Activity } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, BarChart3, Activity, Sparkles, GraduationCap, Info } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import TradingPanel from '../../../components/homepage/TradingPanel';
-import StockChart from '../../../components/homepage/StockChart'
+import StockChart from '../../../components/homepage/StockChart';
 import { Input } from '../../../components/ui/input';
-import MarketStatus from '../../../components/homepage/MarketStatus'
+import MarketStatus from '../../../components/homepage/MarketStatus';
+import StockDetailsTour, { startStockDetailsTour } from '../../../components/homepage/StockDetailsTour';
+import BuyStockTutorial, { startBuyStockTutorial } from '../../../components/homepage/BuyStockTutorial';
 
 const StockDetailsPage = () => {
   const router = useRouter();
   const params = useParams();
   const symbol = params.symbol?.toUpperCase();
   const { user } = useUser();
-  console.log(user?.id, "USERID HERE++++=");
   
   const [stockData, setStockData] = useState(null);
   const [chartData, setChartData] = useState(null);
@@ -56,7 +57,6 @@ const StockDetailsPage = () => {
       }
       const data = await response.json();
       setChartData(data);
-      console.log(data, "Chart HERE--------");
     } catch (err) {
       console.error('Chart data error:', err);
     } finally {
@@ -147,23 +147,54 @@ const StockDetailsPage = () => {
   
   return (
     <div className="w-full p-4">
-      <div className=" mx-auto">
+      {/* Mounted tour components */}
+      <StockDetailsTour />
+      <BuyStockTutorial />
+      
+      <div className="mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div id="stock-header" className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium">Back</span>
+            </button>
+            
+            {/* Tour Buttons Group */}
+            <div className="flex items-center gap-2">
+              {/* Overview Tour Button */}
+              <button
+                onClick={() => startStockDetailsTour()}
+                className="px-3 py-2 inline-flex items-center gap-2 rounded-lg shadow-sm bg-gradient-to-br from-indigo-600 to-indigo-500 text-white hover:from-indigo-700 hover:to-indigo-600 transition text-sm"
+                title="Take a tour of all features"
+              >
+                <Info className="w-4 h-4" />
+                <span className="hidden sm:inline">Tour</span>
+              </button>
+              
+              {/* Buy Tutorial Button */}
+              <button
+                onClick={() => startBuyStockTutorial()}
+                className="px-3 py-2 inline-flex items-center gap-2 rounded-lg shadow-sm bg-gradient-to-br from-green-600 to-emerald-500 text-white hover:from-green-700 hover:to-emerald-600 transition text-sm font-medium"
+                title="Learn how to buy stocks"
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span className="hidden sm:inline">Learn to Trade</span>
+              </button>
+            </div>
+          </div>
+          
+          <div id="live-market-indicator" className="flex items-center gap-2 text-sm text-gray-500">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Live Market Data
+            <span className="hidden sm:inline">Live Market Data</span>
           </div>
         </div>
         
         {/* Stock Info Card */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+        <div id="stock-price-card" className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -192,7 +223,7 @@ const StockDetailsPage = () => {
           </div>
           
           {/* Stock Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div id="stock-stats" className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="text-sm text-gray-600">Open</div>
               <div className="font-semibold text-gray-900">₹{stockData.open?.toFixed(2)}</div>
@@ -215,21 +246,22 @@ const StockDetailsPage = () => {
         {/* Chart and Trading Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart */}
-          <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm w-0 md:w-[800px] border">
+          <div id="stock-chart-section" className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm w-0 md:w-[800px] border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                 <Activity size={20} />
                 Price Chart
               </h2>
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              <div id="chart-timeframes" className="flex bg-gray-100 rounded-lg p-1">
                 {timeframes.map((tf) => (
                   <button
                     key={tf.value}
                     onClick={() => handleTimeframeChange(tf.value)}
-                    className={`px-3 py-1 text-sm rounded-md transition-colors ${activeTimeframe === tf.value
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                      activeTimeframe === tf.value
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
                   >
                     {tf.label}
                   </button>
@@ -247,18 +279,20 @@ const StockDetailsPage = () => {
           </div>
           
           {/* Trading Panel */}
-          <TradingPanel
-            stockData={stockData}
-            clerkId={user?.id}
-            userBalance={userBalance}
-            onBalanceUpdate={handleBalanceUpdate}
-          />
+          <div id="trading-panel">
+            <TradingPanel
+              stockData={stockData}
+              clerkId={user?.id}
+              userBalance={userBalance}
+              onBalanceUpdate={handleBalanceUpdate}
+            />
+          </div>
         </div>
         
         {/* Additional Stock Information */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Key Metrics */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div id="key-metrics" className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Metrics</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
@@ -281,7 +315,7 @@ const StockDetailsPage = () => {
           </div>
           
           {/* Recent Activity */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div id="recent-activity" className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

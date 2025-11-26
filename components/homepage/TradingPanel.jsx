@@ -15,13 +15,11 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
 
-
   const { userData, loading: userLoading, error: userError } = usePortfolioData();
   const { stockPrices, lastUpdateTime, loading: pricesLoading, error: pricesError } = useStockPrices(userData?.holdings);
   
   const enrichedHoldings = getEnrichedHoldings(userData?.holdings, stockPrices);
   
-
   const userHolding = enrichedHoldings?.find(holding => holding.symbol === stockData?.symbol);
   const availableShares = userHolding?.qty || 0;
 
@@ -87,16 +85,13 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
       setMessage(`Successfully ${action} ${quantity} shares of ${stockData.symbol}!`);
       setMessageType('success');
       
-      // Update balance in parent component
       if (onBalanceUpdate) {
         onBalanceUpdate(data.newBalance);
       }
 
-      // Reset form
       setQuantity('');
       setPrice(stockData?.ltp?.toFixed(2) || '');
 
-      // Clear message after 5 seconds
       setTimeout(() => setMessage(''), 5000);
 
     } catch (error) {
@@ -146,7 +141,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
 
       <div className="space-y-4">
         {/* Buy/Sell Toggle */}
-        <div>
+        <div id="trade-type-toggle">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Trade Type
           </label>
@@ -190,7 +185,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
         </div>
 
         {/* Order Type Selection */}
-        <div>
+        <div id="order-type-selection">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Order Type
           </label>
@@ -212,7 +207,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
         </div>
 
         {/* Quantity Input */}
-        <div>
+        <div id="quantity-input">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Quantity
             {tradeType === 'SELL' && availableShares > 0 && (
@@ -251,7 +246,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
         </div>
 
         {/* Price Input */}
-        <div>
+        <div id="price-input">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Price per Share
           </label>
@@ -277,7 +272,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
 
         {/* Order Summary */}
         {quantity && price && (
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <div id="order-summary" className="bg-gray-50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Quantity:</span>
               <span className="font-medium">{quantity} shares</span>
