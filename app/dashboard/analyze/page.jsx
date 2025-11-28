@@ -17,6 +17,8 @@ import NextMilestoneCard from "../../../components/NextMilestoneCard";
 import CelebrationCard from "../../../components/CelebrationCard";
 import TopOpportunityCard from "../../../components/TopOpportunityCard";
 import PsychologicalProfileCard from "../../../components/PsychologicalProfileCard";
+import MLAnalyticsDashboard from "../../../components/MLCharts";
+
 
 const AnalyzeUser = () => {
   const { user, isLoaded } = useUser();
@@ -227,6 +229,9 @@ const AnalyzeUser = () => {
                 justification={`Based on your ${(userSummary.win_rate * 100).toFixed(0)}% win rate and consistent trading pattern.`}
               />
             )}
+
+            {/* ML Analytics Dashboard with Charts */}
+            <MLAnalyticsDashboard report={lastReport} />
 
             {/* Top Opportunity & Next Milestone Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
