@@ -1,12 +1,14 @@
+"use client";
 import React, { useState } from 'react';
 import { CreditCard, Plus, Loader2, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
+import { useNotifications } from '../notifications/NotificationContext'; 
 
 const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const { addNotification, openPanel } = useNotifications(); 
 
   const topupOptions = [
     { amount: 10000, label: '₹10K' },
@@ -32,13 +34,21 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
       }
 
       const data = await response.json();
-      
+
       setMessage(`+₹${(amount/1000)}K added!`);
       setMessageType('success');
-      
+
+      // Update balance in parent
       if (onBalanceUpdate) {
         onBalanceUpdate(data.user.virtualBalance);
       }
+
+      // Dispatch event for CardBalance
+      window.dispatchEvent(new CustomEvent('balanceUpdated', { detail: data.user.virtualBalance }));
+
+      // ⭐ Add notification
+      addNotification(`Added ₹${(amount/1000)}K to your balance`, 'topup');
+      openPanel();
 
       // Clear message after 3 seconds
       setTimeout(() => setMessage(''), 3000);
@@ -60,7 +70,6 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
 
   return (
     <div className="w-full">
-      {/* Compact Header */}
       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
         <div className="flex items-center gap-2">
           <CreditCard className="w-4 h-4 text-gray-600" />
@@ -71,8 +80,7 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
             </p>
           </div>
         </div>
-        
-        {/* Dropdown Toggle */}
+
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -90,7 +98,6 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
             )}
           </button>
 
-          {/* Dropdown Menu */}
           {isOpen && (
             <div className="absolute right-0 top-full mt-1 w-24 bg-white border border-gray-200 rounded-md shadow-lg z-10">
               {topupOptions.map((option) => (
@@ -107,7 +114,6 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
         </div>
       </div>
 
-      {/* Success/Error Message */}
       {message && (
         <div className={`p-2 rounded text-xs flex items-center gap-1 mb-2 ${
           messageType === 'success' 
@@ -123,13 +129,7 @@ const TopupComp = ({ clerkId, currentBalance, onBalanceUpdate }) => {
         </div>
       )}
 
-      {/* Click outside to close */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-0" 
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 z-0" onClick={() => setIsOpen(false)} />}
     </div>
   );
 };

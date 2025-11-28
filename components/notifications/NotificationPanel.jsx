@@ -15,11 +15,7 @@ export default function NotificationPanel() {
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -29,13 +25,17 @@ export default function NotificationPanel() {
     <>
       <div
         aria-hidden={!isOpen}
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-300 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-300 ${
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
         onClick={closePanel}
       />
 
       <aside
         aria-hidden={!isOpen}
-        className={`fixed top-0 right-0 h-full w-[400px] max-w-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[400px] max-w-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
           <div className="flex items-center gap-3">
@@ -44,7 +44,9 @@ export default function NotificationPanel() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
-              <span className="text-sm text-gray-600 font-medium">{notifications.length} total</span>
+              <span className="text-sm text-gray-600 font-medium">
+                {notifications.length} total
+              </span>
             </div>
           </div>
 
@@ -86,23 +88,34 @@ export default function NotificationPanel() {
               <div
                 key={n.id}
                 className={`flex gap-4 items-start p-5 rounded-xl border transition-all duration-200 ${
-                  n.read 
-                    ? "bg-white border-gray-200 hover:border-gray-300" 
+                  n.read
+                    ? "bg-white border-gray-200 hover:border-gray-300"
                     : "bg-blue-50 border-blue-200 hover:border-blue-300 shadow-sm"
                 }`}
               >
                 <div className="flex-shrink-0">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
-                    n.type === "buy" 
-                      ? "bg-gradient-to-br from-green-500 to-green-600" 
-                      : n.type === "sell" 
-                      ? "bg-gradient-to-br from-red-500 to-red-600" 
-                      : "bg-gradient-to-br from-gray-500 to-gray-600"
-                  }`}>
-                    <div className="text-base font-bold text-white">
-                      {n.type === "buy" ? "B" : n.type === "sell" ? "S" : "!"}
+                  {n.imageUrl ? (
+                    <img
+                      src={n.imageUrl}
+                      alt="stock"
+                      className="w-12 h-12 rounded-xl object-cover shadow-md"
+                      onError={(e) => { e.target.style.display = "none"; }}
+                    />
+                  ) : (
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
+                        n.type === "buy"
+                          ? "bg-gradient-to-br from-green-500 to-green-600"
+                          : n.type === "sell"
+                          ? "bg-gradient-to-br from-red-500 to-red-600"
+                          : "bg-gradient-to-br from-gray-500 to-gray-600"
+                      }`}
+                    >
+                      <div className="text-base font-bold text-white">
+                        {n.type === "buy" ? "B" : n.type === "sell" ? "S" : "!"}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">

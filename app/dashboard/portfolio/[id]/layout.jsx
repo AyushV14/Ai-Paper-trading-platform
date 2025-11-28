@@ -10,7 +10,9 @@ export default function PortfolioLayout({ children }) {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Portfolio</h1>
             <p className="text-gray-600">Track your investment performance and holdings</p>
           </div>
+          <div className='mr-20'>
           <CardBalance />
+          </div>
         </div>
         
         {/* Portfolio Content */}

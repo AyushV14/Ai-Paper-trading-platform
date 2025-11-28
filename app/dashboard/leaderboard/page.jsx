@@ -1,96 +1,74 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Trophy, Medal, Loader2 } from "lucide-react";
+import { Trophy, Sparkles, Clock, Zap } from "lucide-react";
 
 export default function Page() {
-  const [loading, setLoading] = useState(true);
-  const [leaders, setLeaders] = useState([]);
-
-  useEffect(() => {
-    fetchLeaders();
-  }, []);
-
-  const fetchLeaders = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/leaderboard");
-      const data = await res.json();
-      setLeaders(data);
-    } catch (err) {
-      console.error("Error fetching leaderboard:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="flex flex-col p-8 bg-gradient-to-b from-gray-50 to-white text-gray-800 h-full w-full overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Trophy className="text-yellow-500" /> Leaderboard
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Top performers ranked by their virtual trading performance.
-          </p>
-        </div>
-        <button
-          onClick={fetchLeaders}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
-        >
-          Refresh Rankings
-        </button>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 p-8">
+      <div className="max-w-3xl w-full text-center space-y-10">
 
-      {/* Main Leaderboard */}
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
-        </div>
-      ) : (
-        <div className="w-full max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-100 text-gray-600 text-sm uppercase tracking-wide">
-                <tr>
-                  <th className="py-3 px-6">Rank</th>
-                  <th className="py-3 px-6">User</th>
-                  <th className="py-3 px-6 text-right">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaders?.map((leader, idx) => (
-                  <tr
-                    key={leader._id}
-                    className="border-t border-gray-100 hover:bg-gray-50 transition"
-                  >
-                    <td className="py-4 px-6 font-semibold text-gray-700 flex items-center gap-2">
-                      {idx === 0 && <Medal className="text-yellow-500" size={18} />}
-                      {idx === 1 && <Medal className="text-gray-400" size={18} />}
-                      {idx === 2 && <Medal className="text-amber-600" size={18} />}
-                      {idx > 2 && <span className="text-gray-500 font-medium">#{idx + 1}</span>}
-                    </td>
-                    <td className="py-4 px-6 text-gray-800 font-medium flex items-center gap-2">
-                      {leader.profileImage && (
-                        <img
-                          src={leader.profileImage}
-                          alt={leader.name}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      )}
-                      {leader.name}
-                    </td>
-                    <td className="py-4 px-6 text-right text-blue-600 font-semibold">
-                      ₹{leader.virtualBalance.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Top Badge */}
+        <div className="relative">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-yellow-500/30 transform hover:scale-105 transition-transform duration-300">
+            <Trophy className="w-12 h-12 text-white" />
+          </div>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg shadow-blue-500/30">
+            <Sparkles className="w-4 h-4" />
+            Coming Soon
           </div>
         </div>
-      )}
+
+        {/* Heading */}
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+            Leaderboard
+          </h1>
+          <p className="text-lg text-gray-600 font-medium">
+            Compete with traders worldwide and climb to the top.
+          </p>
+        </div>
+
+        {/* Features Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Rankings */}
+          <div className="flex flex-col items-center p-6 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl border border-yellow-200 shadow-sm hover:shadow-md transition">
+            <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+              <Trophy className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">Rankings</h3>
+            <p className="text-xs text-gray-600 text-center">Real-time trader rankings</p>
+          </div>
+
+          {/* Performance */}
+          <div className="flex flex-col items-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+              <Zap className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">Performance</h3>
+            <p className="text-xs text-gray-600 text-center">Track your progress</p>
+          </div>
+
+          {/* Rewards */}
+          <div className="flex flex-col items-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-200 shadow-sm hover:shadow-md transition">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">Rewards</h3>
+            <p className="text-xs text-gray-600 text-center">Earn exclusive badges</p>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <p className="text-gray-900 font-semibold text-lg">We're building something amazing</p>
+          </div>
+          <p className="text-gray-600 text-sm">
+            Our team is working hard to bring you a competitive leaderboard experience. Stay tuned for updates!
+          </p>
+        </div>
+
+      </div>
     </div>
   );
 }

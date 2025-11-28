@@ -4,12 +4,17 @@
 import React, { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, Plus } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useNotifications } from "../notifications/NotificationContext";
 
-export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) => {
+export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor , refreshWatchlist  }) => {
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user, isLoaded } = useUser();
+  const router = useRouter();
+  const { addNotification , openPanel } = useNotifications();
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,8 +51,9 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
     return `${sign}${change.toFixed(2)}`;
   };
 
-  const addToWatchlist = async (company) => {
-    await fetch("/api/watchlist", {
+const addToWatchlist = async (company) => {
+  try {
+    const res = await fetch("/api/watchlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -58,14 +64,49 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
         imageUrl: company.imageUrl,
       }),
     });
-    alert("Added to watchlist!");
-  };
+
+    const data = await res.json();
+    if (data.success) {
+      // send notification instead of alert
+      addNotification(
+        `Added ${company.companyShortName} (${company.nseScriptCode || company.bseScriptCode}) to watchlist.`,
+        "watchlist",
+        company.imageUrl // <- pass the company image
+      );
+      openPanel();
+      if (refreshWatchlist) refreshWatchlist();
+    } else {
+      addNotification(
+        `Failed to add ${company.companyShortName} to watchlist: ${data.error || "Unknown error"}`,
+        "error"
+      );
+      openPanel();
+    }
+  } catch (err) {
+    console.error(err);
+    addNotification(
+      `Failed to add ${company.companyShortName} to watchlist.`,
+      "error"
+    );
+    openPanel();
+  }
+};
+
+
+
 
   const getBgGradient = () => {
     if (iconColor === "text-green-600") return "from-green-500 to-green-600";
     if (iconColor === "text-red-600") return "from-red-500 to-red-600";
     if (iconColor === "text-blue-600") return "from-blue-500 to-blue-600";
     return "from-purple-500 to-purple-600";
+  };
+
+  const handleCardClick = (company) => {
+    const symbol = (company.nseScriptCode || company.bseScriptCode || "").toLowerCase();
+    if (symbol) {
+      router.push(`/dashboard/${symbol}`);
+    }
   };
 
   return (
@@ -130,6 +171,7 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
               <div
                 key={company.isin || index}
                 className="flex items-center justify-between p-5 hover:bg-gray-50 rounded-xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-gray-200"
+                onClick={() => handleCardClick(company)}
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   {company.imageUrl && (
@@ -157,8 +199,9 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
                     ₹{stats.ltp.toFixed(2)}
                   </p>
                   <div
-                    className={`flex items-center justify-end gap-1.5 ${isPositive ? "text-green-600" : "text-red-600"
-                      }`}
+                    className={`flex items-center justify-end gap-1.5 ${
+                      isPositive ? "text-green-600" : "text-red-600"
+                    }`}
                   >
                     {isPositive ? (
                       <TrendingUp className="w-3.5 h-3.5" />
@@ -178,7 +221,6 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
                 >
                   <Plus className="w-5 h-5 text-gray-700" />
                 </button>
-
               </div>
             );
           })}

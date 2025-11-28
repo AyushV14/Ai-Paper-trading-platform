@@ -25,9 +25,19 @@ const AnalyzeUser = () => {
   const [allowed, setAllowed] = useState(false);
   const [lastReport, setLastReport] = useState(null);
 
+
+  const formatTraderType = (type) => {
+    if (!type) return "N/A";
+    return type
+      .replace(/_/g, " ")                   // Replace underscores with spaces
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   useEffect(() => {
     if (!isLoaded || !user) return;
-    
+
     async function checkReport() {
       try {
         const res = await fetch("/api/report", {
@@ -56,7 +66,7 @@ const AnalyzeUser = () => {
         body: JSON.stringify({ userId: user.id, createNew: true }),
       });
       const data = await res.json();
-      
+
       if (data.error) {
         alert(data.error);
       } else {
@@ -80,7 +90,7 @@ const AnalyzeUser = () => {
         body: JSON.stringify({ userId: user.id, forceRegenerate: true }),
       });
       const data = await res.json();
-      
+
       if (data.error) {
         alert(data.error);
       } else {
@@ -155,9 +165,9 @@ const AnalyzeUser = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* User Header */}
-        <UserHeader 
+        <UserHeader
           name={user?.fullName || user?.firstName}
           email={user?.primaryEmailAddress?.emailAddress}
           profileImage={user?.imageUrl}
@@ -193,11 +203,12 @@ const AnalyzeUser = () => {
           <QuickStatsCard
             icon={BarChart3}
             label="Trader Type"
-            value={traderPrediction.predicted_type || "N/A"}
+            value={formatTraderType(traderPrediction.predicted_type)}
             color="border-indigo-600"
             subtext={traderPrediction.confidence ? `${(traderPrediction.confidence * 100).toFixed(0)}% confidence` : ""}
             info="AI-based prediction of your trading style."
           />
+
         </div>
 
 

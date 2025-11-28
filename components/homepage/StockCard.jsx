@@ -5,13 +5,16 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { X, TrendingUp, TrendingDown } from "lucide-react";
+import { useNotifications } from "../notifications/NotificationContext";
 
-export const StockCard = ({ symbol, updateTimeCallback, companyName, imageUrl }) => {
+export const StockCard = ({ symbol, updateTimeCallback, companyName, imageUrl , refreshWatchlist }) => {
   const [stockData, setStockData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const { addNotification , openPanel } = useNotifications();
+  
   const { user } = useUser();
 
   useEffect(() => {
@@ -55,19 +58,43 @@ export const StockCard = ({ symbol, updateTimeCallback, companyName, imageUrl })
     }
   };
 
-  const removeFromWatchlist = async (e) => {
-    e.stopPropagation();
-    await fetch("/api/watchlist", {
+const removeFromWatchlist = async (e) => {
+  e.stopPropagation();
+  try {
+    const res = await fetch("/api/watchlist", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.id,
-        symbol,
-      }),
+      body: JSON.stringify({ userId: user.id, symbol }),
     });
-    alert(`${symbol} removed from your watchlist.`);
-    router.refresh();
-  };
+    const data = await res.json();
+    if (data.success) {
+      addNotification(
+        `${symbol} removed from your watchlist.`,
+        "watchlist",
+        stockData?.imageUrl || imageUrl // <- use stock image
+      );
+      openPanel();
+      if (refreshWatchlist) refreshWatchlist();
+    } else {
+      addNotification(
+        `Failed to remove ${symbol} from watchlist: ${data.error || "Unknown error"}`,
+        "error"
+      );
+      openPanel();
+    }
+  } catch (err) {
+    console.error(err);
+    addNotification(
+      `Failed to remove ${symbol} from watchlist.`,
+      "error"
+    );
+    openPanel();
+  }
+};
+
+
+
+
 
   if (initialLoad) {
     return (

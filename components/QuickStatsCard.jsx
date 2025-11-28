@@ -29,7 +29,7 @@ const QuickStatsCard = ({ icon: Icon, label, value, color, subtext, info }) => {
               {/* Fixed Dark Themed Button */}
               <button
                 className="w-6 h-6 flex items-center justify-center rounded-full 
-                bg-gray-800 text-white text-xs font-bold shadow-md hover:scale-110 transition"
+                bg-gray-500 text-white text-xs font-bold shadow-md hover:scale-110 transition"
               >
                 i
               </button>

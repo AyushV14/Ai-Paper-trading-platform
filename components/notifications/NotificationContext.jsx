@@ -32,13 +32,14 @@ export const NotificationProvider = ({ children }) => {
     localStorage.setItem("notifications", JSON.stringify(notifications));
   }, [notifications]);
 
-  const addNotification = useCallback((message, type = "info") => {
+  const addNotification = useCallback((message, type = "info",imageUrl = null) => {
     const newNote = {
       id: Date.now().toString(),
       message,
       type,
       time: new Date().toLocaleTimeString(),
       read: false,
+      imageUrl,
     };
 
     setNotifications((prev) => [newNote, ...prev]);

@@ -15,7 +15,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
-  const { addNotification , openPanel } = useNotifications();
+  const { addNotification, openPanel } = useNotifications();
 
   const { userData, loading: userLoading, error: userError } = usePortfolioData();
   const { stockPrices, lastUpdateTime, loading: pricesLoading, error: pricesError } = useStockPrices(userData?.holdings);
@@ -28,6 +28,9 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
   const totalCost = (parseFloat(quantity) || 0) * (parseFloat(price) || 0);
   const canAffordBuy = userBalance >= totalCost;
   const canSell = availableShares >= (parseFloat(quantity) || 0);
+
+  console.log("stockData:",stockData);
+  
 
   const handleTrade = async () => {
     if (!quantity || !price || !clerkId) {
@@ -91,10 +94,11 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
       // ⭐ ADD NOTIFICATION FOR BUY / SELL
       // -------------------------------------------------------
       addNotification(
-        `${action === "bought" ? "Bought" : "Sold"} ${quantity} shares of ${stockData.symbol
-        } at ₹${price}`,
-        tradeType === "BUY" ? "buy" : "sell"
+        `${action === "bought" ? "Bought" : "Sold"} ${quantity} shares of ${stockData.symbol} at ₹${price}`,
+        tradeType === "BUY" ? "buy" : "sell",
+        stockData.imageUrl
       );
+
       openPanel();
 
       // Existing success UI

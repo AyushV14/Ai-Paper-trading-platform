@@ -1,8 +1,16 @@
-import React from 'react';
-import { BarChart3, MoreHorizontal } from 'lucide-react';
-import { formatCurrency, formatPercentage, getColorClass } from '../../utils/portfolioUtils';
+"use client"; // make sure this is a client component
+import React from "react";
+import { useRouter } from "next/navigation";
+import { BarChart3, MoreHorizontal } from "lucide-react";
+import { formatCurrency, formatPercentage, getColorClass } from "../../utils/portfolioUtils";
 
 const PortfolioOverview = ({ metrics }) => {
+  const router = useRouter();
+
+  const handleAnalyzeClick = () => {
+    router.push("/dashboard/analyze");
+  };
+
   return (
     <div className="bg-white rounded-xl p-6 mb-6 shadow-sm border w-auto md:w-[1200px]">
       {/* Current Value - Main Display */}
@@ -13,7 +21,10 @@ const PortfolioOverview = ({ metrics }) => {
             {formatCurrency(metrics.totalCurrentValue)}
           </h2>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+            <button
+              onClick={handleAnalyzeClick}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+            >
               <BarChart3 className="w-4 h-4" />
               Analyse
             </button>

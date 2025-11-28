@@ -1,4 +1,3 @@
-// pagecontent.jsx
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardTour, { startDashboardTour } from "./DashboardTour";
@@ -9,23 +8,35 @@ import { MarketOverview } from "./MarketOverview";
 import { TrendingUp, TrendingDown, Newspaper, Star, Sparkles, Info, Bell, Plus } from "lucide-react";
 import { useNotifications } from "../notifications/NotificationContext";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export const PageContent = () => {
   const { notifications, openPanel } = useNotifications();
   const [lastUpdateTime, setLastUpdateTime] = useState("");
   const [watchlist, setWatchlist] = useState([]);
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+
+  const fetchWatchlist = async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch(`/api/watchlist?userId=${user.id}`);
+      const data = await res.json();
+      setWatchlist(data.watchlist || []);
+    } catch (err) {
+      console.error("Failed to fetch watchlist:", err);
+    }
+  };
 
   useEffect(() => {
-    fetch("/api/watchlist")
-      .then(res => res.json())
-      .then(data => setWatchlist(data.watchlist));
-  }, []);
+    if (isLoaded && user?.id) fetchWatchlist();
+  }, [isLoaded, user?.id]);
 
   return (
     <div className="flex flex-1 flex-col w-full gap-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
       <DashboardTour />
 
+      {/* Market Header */}
       <div id="market-header" className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-8">
         <div>
           <h1 className="text-5xl font-bold text-gray-900 tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
@@ -40,6 +51,8 @@ export const PageContent = () => {
             <span>Take a Tour</span>
           </button>
         </div>
+
+        {/* Notification Bell */}
         <button
           id="notification-btn"
           className="relative cursor-pointer hover:scale-110 transition-transform duration-300 p-3 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md"
@@ -52,13 +65,14 @@ export const PageContent = () => {
             </span>
           )}
         </button>
-
       </div>
 
+      {/* Market Overview */}
       <div id="market-overview">
         <MarketOverview />
       </div>
 
+      {/* Watchlist Section */}
       <div
         id="watchlist-section"
         className="bg-white rounded-2xl border border-gray-200 p-8 shadow-lg hover:shadow-xl transition-all duration-300"
@@ -79,7 +93,7 @@ export const PageContent = () => {
           </div>
         </div>
 
-        {watchlist.length === 0 ? (
+        {watchlist?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
               <Star className="w-10 h-10 text-gray-400" />
@@ -109,6 +123,7 @@ export const PageContent = () => {
                     companyName={item.companyName}
                     imageUrl={item.imageUrl}
                     updateTimeCallback={setLastUpdateTime}
+                    refreshWatchlist={fetchWatchlist}
                   />
                 </div>
               ))}
@@ -117,37 +132,39 @@ export const PageContent = () => {
         )}
       </div>
 
+      {/* Market Movers Sections */}
       <div id="market-movers" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MarketSection title="Top Gainers" icon={TrendingUp} discoveryType="TOP_GAINERS" iconColor="text-green-600" />
-        <MarketSection title="Top Losers" icon={TrendingDown} discoveryType="TOP_LOSERS" iconColor="text-red-600" />
+        <MarketSection
+          title="Top Gainers"
+          icon={TrendingUp}
+          discoveryType="TOP_GAINERS"
+          iconColor="text-green-600"
+          refreshWatchlist={fetchWatchlist}
+        />
+        <MarketSection
+          title="Top Losers"
+          icon={TrendingDown}
+          discoveryType="TOP_LOSERS"
+          iconColor="text-red-600"
+          refreshWatchlist={fetchWatchlist}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MarketSection title="Stocks in News" icon={Newspaper} discoveryType="STOCKS_IN_NEWS" iconColor="text-blue-600" />
-        <MarketSection title="Most Valuable Stocks" icon={Sparkles} discoveryType="MOST_VALUABLE" iconColor="text-purple-600" />
-      </div>
-
-      <div
-        id="market-footer"
-        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-8 shadow-xl border border-slate-700/50 relative overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <h3 className="font-bold text-xl mb-2">Live Market Updates</h3>
-            <p className="text-slate-400 text-sm font-medium">Data refreshes automatically • Powered by Groww API</p>
-          </div>
-          <div className="flex items-center gap-8">
-            <div className="text-center">
-              <p className="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wider">Last Update</p>
-              <p className="font-bold text-lg">{lastUpdateTime || "Loading..."}</p>
-            </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-xl px-5 py-3 border border-white/20 backdrop-blur-sm">
-              <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50" />
-              <span className="font-bold text-sm uppercase tracking-wide">Active</span>
-            </div>
-          </div>
-        </div>
+        <MarketSection
+          title="Stocks in News"
+          icon={Newspaper}
+          discoveryType="STOCKS_IN_NEWS"
+          iconColor="text-blue-600"
+          refreshWatchlist={fetchWatchlist}
+        />
+        <MarketSection
+          title="Most Valuable Stocks"
+          icon={Sparkles}
+          discoveryType="MOST_VALUABLE"
+          iconColor="text-purple-600"
+          refreshWatchlist={fetchWatchlist}
+        />
       </div>
     </div>
   );
