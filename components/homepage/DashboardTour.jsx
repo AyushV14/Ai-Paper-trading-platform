@@ -1,19 +1,14 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { driver } from "driver.js";
+import { driver } from "driver.js"; // named import
 import "driver.js/dist/driver.css";
-import "./tour.css"; // <-- custom overrides (glassmorphism + buttons + animations)
+import "./tour.css";
 
-/**
- * Exposed function so PageContent can call the same tour instance manually.
- * We'll assign to this inside the component once the driver instance is created.
- */
 export let startDashboardTour = () => {};
 
 export const DashboardTour = () => {
   const tourRef = useRef(null);
 
-  // Create one driver instance configured with the steps
   const createTour = () =>
     driver({
       showProgress: true,
@@ -21,82 +16,113 @@ export const DashboardTour = () => {
       prevBtnText: "Back",
       doneBtnText: "Finish",
       closeBtnText: "Close",
-      overlayColor: "rgba(7, 11, 22, 0.35)", // softer overlay
-      allowClose: false, // user can't click outside to close; forces explicit controls
+      overlayColor: "rgba(0, 0, 0, 0.5)",
+      allowClose: false,
       animate: true,
       padding: 12,
-      // Provide the tour steps here (single source of truth)
+      stageBackground: "#fff",
       steps: [
         {
           element: "#market-header",
           popover: {
             title: "Welcome to Market Dashboard",
             description:
-              "This is your central hub for real-time stock insights. Use the tour to get familiar with the layout and controls.",
+              "This is your central hub for real-time stock insights. Let's take a quick tour to get familiar.",
             side: "bottom",
             align: "start",
           },
         },
         {
-          element: "#market-overview",
+          element: "#search-bar",
           popover: {
-            title: "Market Overview",
-            description: "Quick snapshot of top movers and market health stats.",
+            title: "Search Stocks",
+            description: "Use this search bar to find any stock or company instantly.",
+            side: "bottom",
+          },
+        },
+        {
+          element: "#notification-btn",
+          popover: {
+            title: "Notifications",
+            description:
+              "Click here to view recent alerts, updates, or news about your stocks.",
+            side: "left",
           },
         },
         {
           element: "#watchlist-section",
           popover: {
             title: "Your Watchlist",
-            description: "Track favorite stocks and live price updates here.",
+            description:
+              "Track your favorite stocks here. You can add new ones by clicking the plus button.",
+          },
+        },
+        {
+          element: ".watchlist-add-btn",
+          popover: {
+            title: "Add to Watchlist",
+            description: "Click the '+' button on any stock to add it to your watchlist.",
+            side: "top",
+          },
+        },
+        {
+          element: "#market-overview",
+          popover: {
+            title: "Market Overview",
+            description: "See quick stats about gainers, losers, and volume.",
+          },
+        },
+        {
+          element: "#portfolio-card",
+          popover: {
+            title: "Portfolio Balance",
+            description:
+              "Your total portfolio balance is displayed here. You can toggle visibility.",
+            side: "top",
           },
         },
         {
           element: "#market-movers",
           popover: {
-            title: "Market Movers",
-            description: "Explore trending gainers and losers across the market.",
+            title: "Top Gainers & Losers",
+            description: "Keep an eye on trending stocks. Gainers in green, losers in red.",
           },
         },
         {
           element: "#market-footer",
           popover: {
             title: "Live Market Updates",
-            description: "This footer shows the most recent data refresh time and status.",
+            description:
+              "This footer shows the latest market update time and status.",
           },
         },
       ],
     });
 
   useEffect(() => {
-    // create once
     tourRef.current = createTour();
 
-    // expose starter for manual button
+    // Expose start function
     startDashboardTour = () => {
       try {
-        // re-create if driver was destroyed or null
         if (!tourRef.current) tourRef.current = createTour();
         tourRef.current.drive();
       } catch (e) {
-        // fallback: recreate and drive
         tourRef.current = createTour();
         tourRef.current.drive();
       }
     };
 
-    // Auto-run tour only the first time (per-page key)
+    // Auto-start if not seen
     const localKey = "tour_dashboard_seen";
     const hasSeenTour = localStorage.getItem(localKey);
     if (!hasSeenTour) {
-      // small timeout to let the page settle and avoid layout jumps
       setTimeout(() => {
         tourRef.current.drive();
         localStorage.setItem(localKey, "true");
       }, 400);
     }
 
-    // cleanup: ensure we don't leak references (not strictly necessary but tidy)
     return () => {
       tourRef.current = null;
       startDashboardTour = () => {};

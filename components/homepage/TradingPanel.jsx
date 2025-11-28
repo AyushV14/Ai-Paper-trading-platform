@@ -5,21 +5,23 @@ import { ShoppingCart, TrendingDown, Loader2, CheckCircle, AlertCircle, IndianRu
 import { usePortfolioData } from '../../hooks/usePortfolioData';
 import { getEnrichedHoldings } from '../../utils/portfolioUtils';
 import { useStockPrices } from '../../hooks/useStockPrices';
+import { useNotifications } from '../notifications/NotificationContext';
 
 const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState(stockData?.ltp?.toFixed(2) || '');
   const [orderType, setOrderType] = useState('MARKET');
-  const [tradeType, setTradeType] = useState('BUY'); 
+  const [tradeType, setTradeType] = useState('BUY');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const { addNotification , openPanel } = useNotifications();
 
   const { userData, loading: userLoading, error: userError } = usePortfolioData();
   const { stockPrices, lastUpdateTime, loading: pricesLoading, error: pricesError } = useStockPrices(userData?.holdings);
-  
+
   const enrichedHoldings = getEnrichedHoldings(userData?.holdings, stockPrices);
-  
+
   const userHolding = enrichedHoldings?.find(holding => holding.symbol === stockData?.symbol);
   const availableShares = userHolding?.qty || 0;
 
@@ -62,16 +64,18 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
     setMessage('');
 
     try {
-      const endpoint = tradeType === 'BUY' ? '/api/buy-stock' : '/api/sell-stock';
+      const endpoint =
+        tradeType === "BUY" ? "/api/buy-stock" : "/api/sell-stock";
+
       const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clerkId,
           symbol: stockData.symbol,
           qty: parseInt(quantity),
           price: parseFloat(price),
-          orderType
+          orderType,
         }),
       });
 
@@ -81,23 +85,34 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
         throw new Error(data.message || `${tradeType.toLowerCase()} failed`);
       }
 
-      const action = tradeType === 'BUY' ? 'bought' : 'sold';
+      const action = tradeType === "BUY" ? "bought" : "sold";
+
+      // -------------------------------------------------------
+      // ⭐ ADD NOTIFICATION FOR BUY / SELL
+      // -------------------------------------------------------
+      addNotification(
+        `${action === "bought" ? "Bought" : "Sold"} ${quantity} shares of ${stockData.symbol
+        } at ₹${price}`,
+        tradeType === "BUY" ? "buy" : "sell"
+      );
+      openPanel();
+
+      // Existing success UI
       setMessage(`Successfully ${action} ${quantity} shares of ${stockData.symbol}!`);
-      setMessageType('success');
-      
+      setMessageType("success");
+
       if (onBalanceUpdate) {
         onBalanceUpdate(data.newBalance);
       }
 
-      setQuantity('');
-      setPrice(stockData?.ltp?.toFixed(2) || '');
+      setQuantity("");
+      setPrice(stockData?.ltp?.toFixed(2) || "");
 
-      setTimeout(() => setMessage(''), 5000);
-
+      setTimeout(() => setMessage(""), 5000);
     } catch (error) {
       setMessage(error.message || `${tradeType.toLowerCase()} failed. Please try again.`);
-      setMessageType('error');
-      setTimeout(() => setMessage(''), 5000);
+      setMessageType("error");
+      setTimeout(() => setMessage(""), 5000);
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +128,12 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
 
   const suggestedQuantities = tradeType === 'SELL' && availableShares > 0
     ? [
-        Math.min(1, availableShares),
-        Math.min(5, availableShares),
-        Math.min(10, availableShares),
-        Math.min(25, availableShares),
-        availableShares
-      ].filter((qty, index, arr) => qty > 0 && arr.indexOf(qty) === index)
+      Math.min(1, availableShares),
+      Math.min(5, availableShares),
+      Math.min(10, availableShares),
+      Math.min(25, availableShares),
+      availableShares
+    ].filter((qty, index, arr) => qty > 0 && arr.indexOf(qty) === index)
     : [1, 5, 10, 25, 50];
 
   const getMaxQuantity = () => {
@@ -148,11 +163,10 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setTradeType('BUY')}
-              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2 ${
-                tradeType === 'BUY'
-                  ? 'bg-green-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2 ${tradeType === 'BUY'
+                ? 'bg-green-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               <ShoppingCart className="w-4 h-4" />
               BUY
@@ -160,13 +174,12 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
             <button
               onClick={() => setTradeType('SELL')}
               disabled={availableShares === 0}
-              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2 ${
-                tradeType === 'SELL'
-                  ? 'bg-red-600 text-white shadow-sm'
-                  : availableShares === 0
+              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2 ${tradeType === 'SELL'
+                ? 'bg-red-600 text-white shadow-sm'
+                : availableShares === 0
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               <TrendingDown className="w-4 h-4" />
               SELL
@@ -194,11 +207,10 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
               <button
                 key={type}
                 onClick={() => setOrderType(type)}
-                className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
-                  orderType === type
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${orderType === type
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 {type}
               </button>
@@ -225,7 +237,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
             step="1"
             disabled={tradeType === 'SELL' && availableShares === 0}
           />
-          
+
           {/* Quick quantity buttons */}
           <div className="flex gap-2 mt-2 flex-wrap">
             {suggestedQuantities.map((qty) => (
@@ -233,11 +245,10 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
                 key={qty}
                 onClick={() => setQuantity(qty.toString())}
                 disabled={tradeType === 'SELL' && availableShares === 0}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
-                  tradeType === 'SELL' && availableShares === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-100 hover:bg-gray-200'
-                }`}
+                className={`px-2 py-1 text-xs rounded transition-colors ${tradeType === 'SELL' && availableShares === 0
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
               >
                 {qty === availableShares && tradeType === 'SELL' ? 'All' : qty}
               </button>
@@ -287,7 +298,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
               </span>
               <span className="font-semibold text-lg">{formatCurrency(totalCost)}</span>
             </div>
-            
+
             {tradeType === 'BUY' && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Available Balance:</span>
@@ -296,7 +307,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
                 </span>
               </div>
             )}
-            
+
             {tradeType === 'SELL' && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Available Shares:</span>
@@ -310,11 +321,10 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
 
         {/* Error/Success Message */}
         {message && (
-          <div className={`p-3 rounded-lg flex items-center gap-2 ${
-            messageType === 'success' 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
+          <div className={`p-3 rounded-lg flex items-center gap-2 ${messageType === 'success'
+            ? 'bg-green-50 text-green-700 border border-green-200'
+            : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
             {messageType === 'success' ? (
               <CheckCircle className="w-4 h-4" />
             ) : (
@@ -328,13 +338,12 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
         <button
           onClick={handleTrade}
           disabled={isTradeDisabled()}
-          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-            isTradeDisabled()
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : tradeType === 'BUY'
+          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${isTradeDisabled()
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : tradeType === 'BUY'
               ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md'
               : 'bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow-md'
-          }`}
+            }`}
         >
           {isLoading ? (
             <>
@@ -362,7 +371,7 @@ const TradingPanel = ({ stockData, clerkId, userBalance, onBalanceUpdate }) => {
             </p>
           </div>
         )}
-        
+
         {tradeType === 'SELL' && !canSell && quantity && availableShares > 0 && (
           <div className="text-center">
             <p className="text-sm text-red-600">

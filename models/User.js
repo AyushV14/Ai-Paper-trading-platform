@@ -39,10 +39,12 @@ const UserSchema = new mongoose.Schema({
   trades: [TradeSchema],
   reports: [ReportSchema],
   reportCount: { type: Number, default: 0 },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  watchlist: [{
+    symbol: { type: String, uppercase: true },
+    companyName: String,
+    imageUrl: String,
+  }],
+  createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
 

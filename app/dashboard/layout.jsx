@@ -1,21 +1,22 @@
+// layout.jsx
 "use client";
 import { AppSidebar } from "../../components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
+import { SidebarProvider } from "../../components/ui/sidebar";
 import { Header } from "../../components/homepage/Header";
+import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 export default function DashboardLayout({ children }) {
   return (
     <SidebarProvider>
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-        {/* Sidebar on the left */}
-        <div style={{ flexShrink: 0 }}>
+      <div className="flex h-screen w-full overflow-hidden bg-gray-50">
+        <div className="flex-shrink-0">
           <AppSidebar />
         </div>
 
-        {/* Main content area */}
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
+        <div className="flex flex-col flex-1 overflow-hidden">
           <Header />
-          <main style={{ flexGrow: 1, padding: "1rem", overflowY: "auto" }}>
+          <NotificationPanel />
+          <main className="flex-1 overflow-y-auto">
             {children}
           </main>
         </div>

@@ -1,46 +1,35 @@
+// MarketSection.jsx
 "use client";
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+
+import React, { useState, useEffect } from "react";
+import { TrendingUp, TrendingDown, Plus } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) => {
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        console.log('Fetching data for:', discoveryType);
-
-        // Call your Next.js API route
         const response = await fetch(
           `/api/explore?discoveryType=${discoveryType}&page=0&size=5`,
-          {
-            cache: 'no-store',
-          }
+          { cache: "no-store" }
         );
-
-        console.log('Response status:', response.status);
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error('API error:', errorData);
           throw new Error(errorData.details || `API error: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Received data:', data);
-
-        // Extract stocks from the response
         const stockList = data.exploreCompanies?.[discoveryType] || [];
-        console.log(`Stocks for ${discoveryType}:`, stockList.length);
-        
         setStocks(stockList);
       } catch (err) {
-        console.error('Error fetching market data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -48,110 +37,148 @@ export const MarketSection = ({ title, icon: Icon, discoveryType, iconColor }) =
     };
 
     fetchData();
-    
-    // Refresh every 30 seconds
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [discoveryType]);
 
   const formatChange = (change) => {
-    const sign = change >= 0 ? '+' : '';
+    const sign = change >= 0 ? "+" : "";
     return `${sign}${change.toFixed(2)}`;
   };
 
+  const addToWatchlist = async (company) => {
+    await fetch("/api/watchlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        userId: user.id,
+        symbol: company.nseScriptCode || company.bseScriptCode,
+        companyName: company.companyShortName,
+        imageUrl: company.imageUrl,
+      }),
+    });
+    alert("Added to watchlist!");
+  };
+
+  const getBgGradient = () => {
+    if (iconColor === "text-green-600") return "from-green-500 to-green-600";
+    if (iconColor === "text-red-600") return "from-red-500 to-red-600";
+    if (iconColor === "text-blue-600") return "from-blue-500 to-blue-600";
+    return "from-purple-500 to-purple-600";
+  };
+
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${
-          iconColor === 'text-green-600' ? 'from-green-500 to-emerald-600' :
-          iconColor === 'text-red-600' ? 'from-red-500 to-rose-600' :
-          iconColor === 'text-blue-600' ? 'from-blue-500 to-indigo-600' :
-          'from-purple-500 to-pink-600'
-        } flex items-center justify-center`}>
-          <Icon className="w-5 h-5 text-white" />
+    <div className="bg-white rounded-2xl p-7 border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-7">
+        <div
+          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getBgGradient()} flex items-center justify-center shadow-lg`}
+        >
+          <Icon className="w-6 h-6 text-white" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
       </div>
 
+      {/* Loading Skeleton */}
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="animate-pulse flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-16"></div>
+            <div
+              key={i}
+              className="animate-pulse flex items-center justify-between p-5 bg-gray-50 rounded-xl"
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className="h-12 w-12 bg-gray-200 rounded-xl"></div>
+                <div className="flex-1">
+                  <div className="h-5 bg-gray-200 rounded-lg w-32 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded-lg w-20"></div>
+                </div>
               </div>
               <div className="text-right">
-                <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-12"></div>
+                <div className="h-5 bg-gray-200 rounded-lg w-20 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-          <p className="text-red-600 text-sm font-medium">Failed to load data</p>
-          <p className="text-red-500 text-xs mt-1">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p className="text-red-600 text-base font-bold mb-1">Failed to load data</p>
+          <p className="text-red-500 text-sm">{error}</p>
         </div>
       )}
 
+      {/* No Stocks */}
       {!loading && !error && stocks.length === 0 && (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <p className="text-gray-500">No stocks available</p>
+        <div className="bg-gray-50 rounded-xl p-12 text-center">
+          <p className="text-gray-600 font-medium">No stocks available</p>
         </div>
       )}
 
+      {/* Stock List */}
       {!loading && !error && stocks.length > 0 && (
         <div className="space-y-2">
           {stocks.map((item, index) => {
             const { company, stats } = item;
             const isPositive = stats.dayChange >= 0;
-            
+
             return (
               <div
                 key={company.isin || index}
-                className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group"
+                className="flex items-center justify-between p-5 hover:bg-gray-50 rounded-xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-gray-200"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
                   {company.imageUrl && (
                     <img
                       src={company.imageUrl}
                       alt={company.companyShortName}
-                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                      className="w-12 h-12 rounded-xl object-cover flex-shrink-0 shadow-sm border border-gray-200"
                       onError={(e) => {
-                        e.target.style.display = 'none';
+                        e.target.style.display = "none";
                       }}
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-900 truncate">
+                    <p className="font-bold text-gray-900 truncate text-base">
                       {company.companyShortName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 font-medium">
                       {company.nseScriptCode || company.bseScriptCode}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-gray-900 text-lg">
                     ₹{stats.ltp.toFixed(2)}
                   </p>
-                  <div className={`flex items-center justify-end gap-1 ${
-                    isPositive ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <div
+                    className={`flex items-center justify-end gap-1.5 ${isPositive ? "text-green-600" : "text-red-600"
+                      }`}
+                  >
                     {isPositive ? (
-                      <TrendingUp className="w-3 h-3" />
+                      <TrendingUp className="w-3.5 h-3.5" />
                     ) : (
-                      <TrendingDown className="w-3 h-3" />
+                      <TrendingDown className="w-3.5 h-3.5" />
                     )}
-                    <span className="text-sm font-semibold">
-                      {formatChange(stats.dayChangePerc)}%
-                    </span>
+                    <span className="text-sm font-bold">{formatChange(stats.dayChangePerc)}%</span>
                   </div>
                 </div>
+
+                <button
+                  className="watchlist-add-btn opacity-0 group-hover:opacity-100 transition-all duration-300 p-2 ml-3 rounded-lg hover:bg-gray-200 border border-transparent hover:border-gray-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToWatchlist(company);
+                  }}
+                >
+                  <Plus className="w-5 h-5 text-gray-700" />
+                </button>
+
               </div>
             );
           })}

@@ -171,6 +171,7 @@ const AnalyzeUser = () => {
             label="Total Trades"
             value={userSummary.total_trades || 0}
             color="border-blue-600"
+            info="Total number of trades executed till date."
           />
           <QuickStatsCard
             icon={TrendingUp}
@@ -178,21 +179,27 @@ const AnalyzeUser = () => {
             value={`${userSummary.win_rate ? (userSummary.win_rate * 100).toFixed(0) : 0}%`}
             color="border-green-600"
             subtext={userSummary.win_rate > 0.6 ? "Above average" : ""}
+            info="Percentage of trades you won out of all executed trades."
           />
+
           <QuickStatsCard
             icon={Target}
             label="Avg Profit"
             value={`${userSummary.avg_profit ? userSummary.avg_profit.toFixed(1) : 0}%`}
             color="border-purple-600"
+            info="Average profit per trade based on your trading history."
           />
+
           <QuickStatsCard
             icon={BarChart3}
             label="Trader Type"
             value={traderPrediction.predicted_type || "N/A"}
             color="border-indigo-600"
             subtext={traderPrediction.confidence ? `${(traderPrediction.confidence * 100).toFixed(0)}% confidence` : ""}
+            info="AI-based prediction of your trading style."
           />
         </div>
+
 
         {/* AI Insights Section */}
         {aiInsights ? (
@@ -204,8 +211,8 @@ const AnalyzeUser = () => {
 
             {/* Trading Score */}
             {aiInsights.tradingScore !== undefined && (
-              <TradingScoreCard 
-                score={aiInsights.tradingScore} 
+              <TradingScoreCard
+                score={aiInsights.tradingScore}
                 justification={`Based on your ${(userSummary.win_rate * 100).toFixed(0)}% win rate and consistent trading pattern.`}
               />
             )}
@@ -239,7 +246,7 @@ const AnalyzeUser = () => {
                   type="strengths"
                 />
               )}
-              
+
               {aiInsights.improvements && aiInsights.improvements.length > 0 && (
                 <FlipCard
                   title="Growth Areas"
@@ -249,7 +256,7 @@ const AnalyzeUser = () => {
                   type="improvements"
                 />
               )}
-              
+
               {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
                 <FlipCard
                   title="Action Plan"
@@ -302,8 +309,8 @@ const AnalyzeUser = () => {
         <MostTradedStocks stocks={userSummary.most_traded_stocks} />
 
         {/* Report Footer */}
-        <ReportFooter 
-          timestamp={lastReport.analysis_timestamp} 
+        <ReportFooter
+          timestamp={lastReport.analysis_timestamp}
           nextReportHours={24}
         />
       </div>

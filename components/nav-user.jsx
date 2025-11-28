@@ -1,3 +1,4 @@
+// nav-user.jsx
 "use client"
 
 import {
@@ -37,7 +38,6 @@ export function NavUser({ user }) {
   const { signOut } = useClerk() 
   const router = useRouter() 
 
-  // Handle logout and redirect
   const handleLogout = async () => {
     await signOut() 
     router.push("/") 
@@ -46,7 +46,7 @@ export function NavUser({ user }) {
   if (!user) {
     return (
       <div className="flex items-center gap-2 p-2">
-        <div className="h-8 w-8 rounded-lg bg-gray-200 animate-pulse" />
+        <div className="h-8 w-8 rounded-md bg-gray-200 animate-pulse" />
         <div className="space-y-1">
           <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
           <div className="h-2 w-32 bg-gray-200 rounded animate-pulse" />
@@ -63,15 +63,15 @@ export function NavUser({ user }) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-gray-50 transition-colors"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="h-8 w-8 rounded-md">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-md">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-xs text-gray-500">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -84,13 +84,13 @@ export function NavUser({ user }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-md">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-md">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
